@@ -47,7 +47,20 @@ if st.button("Run Intelligence Audit"):
             
             response = client.models.generate_content(model=MODEL_ID, contents=prompt)
             
-            st.success("Audit Complete")
-            st.json(response.text)
+            if response.text:
+             st.success("Audit Complete")
+        
+             # Clean the AI output of markdown backticks
+             raw_output = response.text
+             clean_json = raw_output.replace("```json", "").replace("```", "").strip()
+        
+        try:
+            # Parse and show the beautiful JSON boxes
+            parsed_data = json.loads(clean_json)
+            st.json(parsed_data)
+        except Exception as e:
+            # If parsing fails, show the raw text so we don't lose the data
+            st.warning("Audit generated, but formatting requires manual review.")
+            st.write(raw_output)
     else:
         st.error("Please provide both a PDF and a Patient Note.")
